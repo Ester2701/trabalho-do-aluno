@@ -1,38 +1,83 @@
-document.getElementById("form").addEventListener("submit", function(event) {
+// Carregar dados do localStorage se existirem
+document.addEventListener("DOMContentLoaded", carregarDados);
+
+// Captura do formulário
+const form = document.getElementById("formNotas");
+
+form.addEventListener("submit", function (event) {
     event.preventDefault();
 
-    // Captura os dados do formulário
     const nome = document.getElementById("nome").value.trim();
     const nota1 = parseFloat(document.getElementById("nota1").value);
     const nota2 = parseFloat(document.getElementById("nota2").value);
 
-    // Validação dos campos
+    // Validação
     if (!nome || isNaN(nota1) || isNaN(nota2)) {
-        alert("Por favor, preencha todos os campos corretamente!");
+        alert("Preencha todos os campos corretamente.");
         return;
     }
 
-    // Cálculo da média
     const media = (nota1 + nota2) / 2;
-
-    // Verifica se o aluno foi aprovado ou reprovado
     const status = media >= 6 ? "Aprovado" : "Reprovado";
-    const statusClass = media >= 6 ? "aprovado" : "reprovado";
+    const classe = media >= 6 ? "aprovado" : "reprovado";
 
-    // Cria uma nova linha na tabela
-    const tabela = document.getElementById("resultado").getElementsByTagName("tbody")[0];
-    const novaLinha = tabela.insertRow();
+    adicionarNaTabela(nome, nota1, nota2, media, status, classe);
+    salvarDados(); // salva sempre que novo aluno é adicionado
 
-    novaLinha.classList.add(statusClass);
-
-    novaLinha.insertCell(0).textContent = nome;
-    novaLinha.insertCell(1).textContent = nota1.toFixed(1);
-    novaLinha.insertCell(2).textContent = nota2.toFixed(1);
-    novaLinha.insertCell(3).textContent = media.toFixed(1);
-    novaLinha.insertCell(4).textContent = status;
-
-    // Limpar os campos
-    document.getElementById("nome").value = '';
-    document.getElementById("nota1").value = '';
-    document.getElementById("nota2").value = '';
+    form.reset(); // limpar o formulário
 });
+
+// Função para adicionar linha na tabela
+function adicionarNaTabela(nome, nota1, nota2, media, status, classe) {
+    const tbody = document.querySelector("#tabelaAlunos tbody");
+
+    const linha = document.createElement("tr");
+    linha.classList.add(classe);
+
+    linha.innerHTML = `
+        <td>${nome}</td>
+        <td>${nota1.toFixed(1)}</td>
+        <td>${nota2.toFixed(1)}</td>
+        <td>${media.toFixed(1)}</td>
+        <td>${status}</td>
+    `;
+
+    tbody.appendChild(linha);
+}
+
+// Salvar no localStorage
+function salvarDados() {
+    const linhas = document.querySelectorAll("#tabelaAlunos tbody tr");
+    const dados = [];
+
+    linhas.forEach(tr => {
+        const tds = tr.querySelectorAll("td");
+
+        dados.push({
+            nome: tds[0].textContent,
+            nota1: tds[1].textContent,
+            nota2: tds[2].textContent,
+            media: tds[3].textContent,
+            status: tds[4].textContent,
+            classe: tr.classList.contains("aprovado") ? "aprovado" : "reprovado"
+        });
+    });
+
+    localStorage.setItem("alunos", JSON.stringify(dados));
+}
+
+// Carregar dados do localStorage ao abrir a página
+function carregarDados() {
+    const dados = JSON.parse(localStorage.getItem("alunos")) || [];
+
+    dados.forEach(item => {
+        adicionarNaTabela(
+            item.nome,
+            Number(item.nota1),
+            Number(item.nota2),
+            Number(item.media),
+            item.status,
+            item.classe
+        );
+    });
+}
