@@ -10,18 +10,19 @@ form.addEventListener("submit", function (event) {
     const nome = document.getElementById("nome").value.trim();
     const nota1 = parseFloat(document.getElementById("nota1").value);
     const nota2 = parseFloat(document.getElementById("nota2").value);
+     const nota3 = parseFloat(document.getElementById("nota3").value);
 
     // Validação
-    if (!nome || isNaN(nota1) || isNaN(nota2)) {
+    if (!nome || isNaN(nota1) || isNaN(nota2)) || isNaN(nota3) {
         alert("Preencha todos os campos corretamente.");
         return;
     }
 
-    const media = (nota1 + nota2) / 2;
+    const media = (nota1 + nota2 + nota3) / 2;
     const status = media >= 6 ? "Aprovado" : "Reprovado";
     const classe = media >= 6 ? "aprovado" : "reprovado";
 
-    adicionarNaTabela(nome, nota1, nota2, media, status, classe);
+    adicionarNaTabela(nome, nota1, nota2, nota2, media, status, classe);
     salvarDados(); // salva sempre que novo aluno é adicionado
 
     form.reset(); // limpar o formulário
@@ -38,6 +39,7 @@ function adicionarNaTabela(nome, nota1, nota2, media, status, classe) {
         <td>${nome}</td>
         <td>${nota1.toFixed(1)}</td>
         <td>${nota2.toFixed(1)}</td>
+         <td>${nota3.toFixed(1)}</td>
         <td>${media.toFixed(1)}</td>
         <td>${status}</td>
     `;
@@ -75,6 +77,7 @@ function carregarDados() {
             item.nome,
             Number(item.nota1),
             Number(item.nota2),
+            Number(item.nota3),
             Number(item.media),
             item.status,
             item.classe
